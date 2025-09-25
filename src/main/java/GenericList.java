@@ -1,9 +1,12 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-
-public abstract class GenericList<T> {
-    public class Node {
-        public T data;
-        public Node next;
+public abstract class GenericList<T> implements Iterable<T> {
+    class Node<T> {
+        T data;
+        int code;
+        Node<T> next;
 
         public Node() {
         /*
@@ -24,74 +27,29 @@ public abstract class GenericList<T> {
 
     }
 
-    public interface Iterable<T> {
-        /*
-        Contains abstract methods and a foreach loop
-        */
-        boolean hasNext();
-        T next();
-    }
-
-    private Node head;
+    private Node<T> head;
     private int length;
 
     public void print(){
         /*
         Prints the data on new lines.
         */
-        Node current = head;
+        Node<T> current = head;
         while(current != null){
             System.out.println(current.data);
             current = current.next;
         }
     }
 
-    public void add(T data) {
-        /*
-        Adds the value of "T data" to the linked list as the new head
-        */
+    public abstract void add(T data);
 
-        Node newNode = new Node();
-        newNode.data = data;
-        newNode.next = head;
-        head = newNode;
-        length++;
-    }
+    public abstract T delete();
 
-    public T delete(){
-        /*
-        Deletes the tail data from the linked list.
-        */
-
-        if(this.head == null) {
-            /*
-            If the link list is empty
-            */
-            return null;
-        }
-        if(head.next == null){
-            /*
-            If the head contains only 1 item of T
-            */
-            T data = head.data;
-            head = null;
-            return data;
-        }
-
-        Node current = this.head;
-        while(current.next.next != null) {
-            current = current.next;
-        }
-        T data = current.next.data;
-        current.next = null;
-        return data;
-    }
-
-    public Node getHead(){
+    public Node<T> getHead(){
         return this.head;
     }
 
-    public void setHead(Node head){
+    public void setHead(Node<T> head){
         this.head = head;
     }
 
@@ -110,7 +68,7 @@ public abstract class GenericList<T> {
         if(index < 0 || index >= length){ //Checks if the index given is in bounds, otherwise return null.
             return null;
         }
-        Node current = head;
+        Node<T> current = head;
         for(int i = 0; i < index; i++){
             current = current.next;
         }
@@ -123,7 +81,7 @@ public abstract class GenericList<T> {
         if(index < 0 || index >= length){
             return null;
         }
-        Node current = head;
+        Node<T> current = head;
         for(int i = 0; i < index; i++){
             current = current.next;
         }
@@ -131,6 +89,54 @@ public abstract class GenericList<T> {
         current.data = data;
         return temp;
 
+    }
+
+    public ArrayList<T> generateList(){
+        Node<T> current = head;
+        ArrayList<T> list = new ArrayList<>();
+        while(current != null){
+            list.add(current.data);
+            current = current.next;
+        }
+        return list;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            private Node<T> current = head;
+
+            @Override
+            public boolean hasNext() {
+                return current != null;
+            }
+
+            @Override
+            public T next() {
+
+                if(current == null){
+
+                    throw new  NoSuchElementException();
+
+                }
+                T data = current.data;
+                current = current.next;
+                return data;
+            }
+        };
+    }
+
+    public Iterator<T> descendingIterator(){
+        /*
+        Returns an iterator in the reverse order of the given list.
+        */
+        ArrayList<T> list = generateList();
+        ArrayList<T> reverseList = new ArrayList<>();
+        for(T data : list){
+            reverseList.add(0,data);
+        }
+
+        return reverseList.iterator();
     }
 
 }
